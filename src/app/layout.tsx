@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import Providers from './providers';
 
 export const metadata: Metadata = {
   title: "Fortune Wheel",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={'font-Inter-Regular'}>
-        <AntdRegistry>{children}</AntdRegistry>
+        <Providers>
+          <AntdRegistry>{children}</AntdRegistry>
+        </Providers>
       </body>
     </html>
   );

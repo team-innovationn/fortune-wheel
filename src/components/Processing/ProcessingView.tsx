@@ -2,6 +2,8 @@
 import { WinnerType } from '@/lib/definitions';
 import { CSSProperties, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import BeatLoader from "react-spinners/BeatLoader";
+import { maskAccountNumber } from '@/lib/utils';
+import Wheel from '@/components/Wheel';
 
 type ProcessingViewType = {
     randomRecord: WinnerType[] | null,
@@ -52,15 +54,10 @@ const ProcessingView: React.FunctionComponent<ProcessingViewType> = ({ setViewIn
             <main className="h-full flex flex-col gap-y-9 justify-center items-center">
                 {dsiplayAccts && (
                     <>
-                        <p className='text-[4rem] font-bold flex items-center gap-x-3 mt-[1rem]'>{
-                            currentAccount?.accountNumber.split("").map((digit: string, index: number) => {
-                                return (
-                                    <div key={index} className="bg-white p-2 text-base sm:text-xl md:text-2xl font-bold w-[30px] sm:w-[50px] sm:h-[50px] md:w-[70px] md:h-[70px] flex justify-center items-center rounded shadow">
-                                        {digit}
-                                    </div>
-                                )
-                            })
-                        }</p >
+                        <Wheel
+                            labels={randomRecord?.map(r => r.name) ?? []}
+                            onFinish={() => setViewIndex(2)}
+                        />
                     </>
                 )}
                 <div className='flex flex-col items-center gap-3'>
