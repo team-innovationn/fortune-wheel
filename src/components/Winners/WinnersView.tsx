@@ -1,143 +1,302 @@
 'use client'
 import { WinnerType } from '@/lib/definitions';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { maskAccountNumber } from '@/lib/utils';
+import { maskPhoneNumber } from '@/lib/utils';
 import * as XLSX from 'xlsx';
+import { downloadBlob } from '@/lib/utils';
+import jsPDF from 'jspdf';
+import { Button, HStack, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Box, Text, Select, VStack, Heading, Badge } from '@chakra-ui/react';
 
 type WinnrsViewType = {
     randomRecord: WinnerType[]
-    title: string
     category: string
     setShowConfetti: Dispatch<SetStateAction<boolean>>
 }
 
-const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, title, category, setShowConfetti }) => {
+const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShowConfetti }) => {
     const [downloaded, setDownloaded] = useState<boolean>(false);
+    const [selectedDivision, setSelectedDivision] = useState<string>('all');
+    
+    // Get unique divisions from the records
+    const divisions = Array.from(new Set(randomRecord.map(record => record.division).filter(Boolean)));
+    
+    // Filter records based on selected division
+    const filteredRecords = selectedDivision === 'all' 
+        ? randomRecord 
+        : randomRecord.filter(record => record.division === selectedDivision);
 
     useEffect(() => {
         setShowConfetti(true);
-
+        const t = setTimeout(() => setShowConfetti(false), 4000);
         return () => {
+            clearTimeout(t);
             setShowConfetti(false);
         }
     }, [])
 
-    useEffect(() => {
-        if (downloaded) {
-            return;
-        }
-
-        // Convert JSON data to a worksheet
-        const worksheet = XLSX.utils.json_to_sheet(randomRecord);
-
-        // Create a new workbook
-        const workbook = XLSX.utils.book_new();
-
-        // Append the worksheet to the workbook
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-        // Generate a binary string from the workbook
-        const workbookOut = XLSX.write(workbook, {
-            bookType: 'xlsx',
-            type: 'binary',
-        });
-
-        // Convert binary string to array buffer
-        const s2ab = (s: any) => {
-            const buf = new ArrayBuffer(s.length);
-            const view = new Uint8Array(buf);
-            for (let i = 0; i < s.length; i++) {
-                view[i] = s.charCodeAt(i) & 0xff;
-            }
-            return buf;
-        };
-
-        // Create a blob from the array buffer
-        const blob = new Blob([s2ab(workbookOut)], { type: 'application/octet-stream' });
-
-        // Create a link element
-        const link = document.createElement('a');
-
-        // URL
-        const url = URL.createObjectURL(blob);
-
-        // Set the URL to the blob
-        link.href = url
-
-        // Set the download attribute to the desired file name
-        link.download = `${title} ${category}.xlsx`;
-
-        // Append the link to the document body
-        document.body.appendChild(link);
-
-        // Trigger the download by clicking the link
-        link.click();
-
-        // Clean up and remove the link
-        document.body.removeChild(link);
-
-        // Revoke object URL
-        URL.revokeObjectURL(url);
-
-        setDownloaded(true);
-    }, [])
+    // Winners download moved to explicit button per request
 
 
     return (
-        <div className="relative w-full h-full">
-            <h1 className='text-[#FABA02] text-3xl mb-2 text-center'>{`${category} Category`}</h1>
-            <h1 className='text-white text-lg font-extrabold text text-center'>Congratulations {" "}<span className='text-sec font-bold'>{title}</span> {" "} winners!</h1>
-            <div id="largegenerictable" className="flex flex-col gap-2 text-[16px] mt-3 h-[70vh] overflow-y-auto">
-                <table className="w-full border-separate border-spacing-y-4 pb-[5rem]">
-                    <thead className="">
-                        <tr id="header" className="text-white pb-20">
-                            <th className="">S/N</th>
-                            <th className="font-Gilroy-SemiBold">
-                                Account Name
-                            </th>
-                            <th className="font-Gilroy-SemiBold">
-                                Account Number
-                            </th>
-                            <th className="font-Gilroy-SemiBold">
-                                Branch Name
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="">
-                        {randomRecord.map((record: WinnerType, index) => {
-                            return (
-                                <tr
-                                    id="staff"
-                                    key={index}
-                                    className="text-center tablerow bg-[#F4F4F4] text-[14px] text-[#4D4D4D]"
+        <Box className="relative h-full" p={6}>
+            {/* Enhanced Header Section */}
+            <VStack spacing={4} my={8}>
+                <Box textAlign="center">
+                    <Heading 
+                        size="2xl" 
+                        bgGradient="linear(to-r, #FABA02, #FFD700)" 
+                        bgClip="text"
+                        fontWeight="black"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                        mb={2}
+                    >
+                        🎉 {category} Winners 🎉
+                    </Heading>
+                    <Text 
+                        color="whiteAlpha.900" 
+                        fontSize="xl" 
+                        fontWeight="semibold"
+                        textShadow="2px 2px 4px rgba(0,0,0,0.3)"
+                    >
+                        Congratulations to all our amazing winners!
+                    </Text>
+                    <Badge 
+                        colorScheme="yellow" 
+                        variant="solid" 
+                        px={4} 
+                        py={2} 
+                        borderRadius="full" 
+                        fontSize="md"
+                        mt={2}
+                    >
+                        {filteredRecords.length} Winner{filteredRecords.length !== 1 ? 's' : ''}
+                    </Badge>
+                </Box>
+            </VStack>
+
+            {/* Controls Section */}
+            <Box 
+                bg="whiteAlpha.100" 
+                borderRadius="xl" 
+                p={4} 
+                mb={6}
+                backdropFilter="blur(10px)"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+            >
+                <HStack justify="space-between" wrap="wrap" spacing={4}>
+                    {/* Division Filter */}
+                    <Box>
+                        <Text color="white" fontSize="sm" mb={2} fontWeight="medium">Filter by Division:</Text>
+                        <Select
+                            value={selectedDivision}
+                            onChange={(e) => setSelectedDivision(e.target.value)}
+                            bg="white"
+                            borderRadius="lg"
+                            size="md"
+                            maxW="250px"
+                            boxShadow="md"
+                        >
+                            <option value="all">All Divisions ({randomRecord.length})</option>
+                            {divisions.map(division => {
+                                const count = randomRecord.filter(r => r.division === division).length;
+                                return (
+                                    <option key={division} value={division}>
+                                        {division} ({count})
+                                    </option>
+                                );
+                            })}
+                        </Select>
+                    </Box>
+
+                    {/* Download Buttons */}
+                    <HStack spacing={3}>
+                        <Button 
+                            size="md" 
+                            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                            color="white"
+                            borderRadius="xl"
+                            fontWeight="bold"
+                            px={6}
+                            _hover={{
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 10px 25px rgba(102, 126, 234, 0.3)"
+                            }}
+                            _active={{
+                                transform: "translateY(0)"
+                            }}
+                            transition="all 0.2s"
+                            onClick={() => {
+                                const ws = XLSX.utils.json_to_sheet(filteredRecords);
+                    const csv = XLSX.utils.sheet_to_csv(ws);
+                    const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                                downloadBlob(csvBlob, `${category} - winners.csv`);
+                            }}
+                        >
+                            📊 Download CSV
+                        </Button>
+                        <Button 
+                            size="md"
+                            bg="linear-gradient(135deg, #FABA02, #FFD700)"
+                            color="white"
+                            borderRadius="xl"
+                            fontWeight="bold"
+                            px={6}
+                            _hover={{
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 10px 25px rgba(250, 186, 2, 0.3)"
+                            }}
+                            _active={{
+                                transform: "translateY(0)"
+                            }}
+                            transition="all 0.2s"
+                            onClick={() => {
+                    const doc = new jsPDF();
+                    doc.setFontSize(14);
+                                doc.text(`${category} Winners`, 14, 20);
+                    doc.setFontSize(10);
+                                filteredRecords.forEach((r, idx) => {
+                        const y = 30 + idx * 6;
+                        if (y > 280) return; // simple single-page cap
+                        doc.text(`${idx + 1}. ${r.name} - ${r.branchName}`, 14, y);
+                    });
+                                doc.save(`${category} - report.pdf`);
+                            }}
+                        >
+                            📄 Download PDF
+                        </Button>
+                    </HStack>
+            </HStack>
+            </Box>
+            {/* Enhanced Table */}
+            <Box 
+                bg="white" 
+                borderRadius="xl" 
+                overflow="hidden" 
+                boxShadow="2xl"
+                border="1px solid"
+                borderColor="gray.200"
+            >
+                <TableContainer maxH="60vh" overflowY="auto">
+                    <Table variant="simple" size="md">
+                        <Thead bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                            <Tr>
+                                <Th 
+                                    color="white" 
+                                    fontWeight="bold" 
+                                    fontSize="sm"
+                                    textTransform="uppercase"
+                                    letterSpacing="wider"
+                                    sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
                                 >
-                                    {" "}
-                                    <td className="rounded-l whitespace-nowrap">{index + 1}</td>
-                                    <td
-                                        className={`px-6 py-4 border-none whitespace-nowrap font-Gilroy-Regular`}
-                                    >
+                                    S/N
+                                </Th>
+                                <Th 
+                                    color="white" 
+                                    fontWeight="bold" 
+                                    fontSize="sm"
+                                    textTransform="uppercase"
+                                    letterSpacing="wider"
+                                    sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                                >
+                                    Account Name
+                                </Th>
+                                <Th 
+                                    color="white" 
+                                    fontWeight="bold" 
+                                    fontSize="sm"
+                                    textTransform="uppercase"
+                                    letterSpacing="wider"
+                                    sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                                >
+                                    Phone (Masked)
+                                </Th>
+                                <Th 
+                                    color="white" 
+                                    fontWeight="bold" 
+                                    fontSize="sm"
+                                    textTransform="uppercase"
+                                    letterSpacing="wider"
+                                    sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                                >
+                                    Branch Name
+                                </Th>
+                                <Th 
+                                    color="white" 
+                                    fontWeight="bold" 
+                                    fontSize="sm"
+                                    textTransform="uppercase"
+                                    letterSpacing="wider"
+                                    sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                                >
+                                    Division
+                                </Th>
+                                <Th 
+                                    color="white" 
+                                    fontWeight="bold" 
+                                    fontSize="sm"
+                                    textTransform="uppercase"
+                                    letterSpacing="wider"
+                                    sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                                >
+                                    Region
+                                </Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                            {filteredRecords.map((record: WinnerType, index) => (
+                                <Tr 
+                                    key={index} 
+                                    _hover={{ 
+                                        bg: 'blue.50',
+                                        transform: 'scale(1.01)',
+                                        boxShadow: 'md'
+                                    }}
+                                    transition="all 0.2s"
+                                    bg={index % 2 === 0 ? 'gray.50' : 'white'}
+                                >
+                                    <Td fontWeight="bold" color="blue.600">
+                                        {index + 1}
+                                    </Td>
+                                    <Td fontWeight="semibold" color="gray.800" isTruncated title={record.name}>
                                         {record.name}
-                                    </td>
-                                    <td
-                                        className={`px-6 py-4 border-none whitespace-nowrap font-Gilroy-Regular`}
-                                    >
-                                        {maskAccountNumber(record.accountNumber)}
-                                    </td>
-                                    <td
-                                        className={`rounded-r px-6 py-4 border-none whitespace-nowrap font-Gilroy-Regular`}
-                                    >
+                                    </Td>
+                                    <Td color="gray.600" fontFamily="mono">
+                                        {maskPhoneNumber(record.phoneNumber)}
+                                    </Td>
+                                    <Td color="gray.700" isTruncated title={record.branchName}>
                                         {record.branchName}
-                                    </td>
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </table>
-            </div >
-            {/* <div className='w-max ml-auto gap-x-2 mt-2 mr-3'>
-                <DownloadRecord records={randomRecord} title={title} category={category} />
-            </div> */}
-        </div>
+                                    </Td>
+                                    <Td>
+                                        <Badge 
+                                            colorScheme="blue" 
+                                            variant="subtle" 
+                                            borderRadius="full"
+                                            px={3}
+                                            py={1}
+                                        >
+                                            {record.division || 'N/A'}
+                                        </Badge>
+                                    </Td>
+                                    <Td>
+                                        <Badge 
+                                            colorScheme="green" 
+                                            variant="subtle" 
+                                            borderRadius="full"
+                                            px={3}
+                                            py={1}
+                                        >
+                                            {record.region || 'N/A'}
+                                        </Badge>
+                                    </Td>
+                            </Tr>
+                        ))}
+                    </Tbody>
+                </Table>
+            </TableContainer>
+            </Box>
+        </Box>
     )
 }
 

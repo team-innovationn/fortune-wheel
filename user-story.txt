@@ -1,0 +1,67 @@
+User Story Document: Raffle Draw Platform Role: Product Manager
+Feature: Automated Raffle Draw Platform for Super Rewards Promo Epic 1 – Monthly Draw Categories
+User Story 1 – Individual: New-to-Bank & Reactivation
+As a product manager
+I want the system to randomly select 10 winners per division (4 divisions total) from qualified individual customers
+So that winners can be fairly chosen and displayed.
+Acceptance Criteria:
+● Customer details uploaded (Name, Account No, Branch, Region, Division, Phone, Email).
+● Platform must draw 10 winners per division (4 draws).
+● Display winner’s Name, Branch, masked Phone No.
+● Ability to download full details of winners as uploaded.
+User Story 2 – Individual: Bonus Reward
+(Same as above, with identical logic for 10 winners per division × 4 divisions.)
+User Story 3 – Individual: Super Reward
+As a product manager
+I want the platform to randomly select 1 winner per division from qualified individual customers
+So that divisional winners are fairly displayed.
+Acceptance Criteria:
+● Same as User Story 1, but 1 winner per division × 4 divisions.
+User Story 4 – Individual: Youth Category
+As a product manager
+I want the platform to randomly select 10 winners bank-wide from qualified youth customers So that winners are fairly displayed across the bank.
+Acceptance Criteria:
+● Customer details uploaded (Name, Account No, Branch, Region, Division, Phone, Email).
+● Platform selects 10 winners across the bank (not divisional).
+ ● Display winner’s Name, Branch, masked Phone No.
+● Downloadable full details.
+User Story 5 – Business: New-to-Bank & Reactivation
+As a product manager
+I want the platform to randomly select 10 winners per division (4 divisions total) from qualified business customers
+So that winners can be fairly displayed.
+Acceptance Criteria:
+● Same criteria as for individuals.
+User Story 6 – Business: Bonus Reward
+(Same as above, with identical logic for 10 winners per division × 4 divisions.)
+User Story 7 – Business: Business Expansion
+As a product manager
+I want the platform to randomly select 1 winner per division from qualified business customers So that winners are fairly displayed.
+Acceptance Criteria:
+● Same as User Story 3, but for business customers.
+Epic 2 – Grand Finale Draw Categories User Story 8 – Business Expansion (Finale)
+As a product manager
+I want the platform to randomly select 1 winner per division (4 divisions total) for the grand finale Business Expansion draw
+So that winners can be fairly displayed and exported.
+Acceptance Criteria:
+● Same upload, selection, and display logic as monthly draws.
+User Story 9 – Millionaire Geng (Finale)
+As a product manager
+I want the platform to randomly select 1 winner per division for the Millionaire Geng grand
+
+finale
+So that divisional winners are fairly displayed.
+Acceptance Criteria:
+● Same process as User Story 8.
+User Story 10 – Scholarship Grant (Finale)
+As a product manager
+I want the platform to randomly select 1 winner per division for the Scholarship Grant category So that divisional winners are fairly displayed.
+Acceptance Criteria:
+● Same process as User Story 8.
+Non-Functional Requirements (NFRs):
+● Random selection algorithms must ensure fairness and transparency.
+● All draws must be auditable (logs of input file, winners, timestamp).
+● Winner display must show masked phone numbers but allow full download
+(CSV/Excel).
+● Platform must support bulk data upload in Excel/CSV.
+● Role-based access control (Admin to upload, Auditor to view logs).
+● Platform should generate draw report for each event.

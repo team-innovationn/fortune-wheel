@@ -10,7 +10,9 @@ export type WinnerType = {
     email: string,
     accountNumber: string,
     phoneNumber: string,
-    branchName: string
+    branchName: string,
+    division?: string,
+    region?: string
 }
 
 export type User = {
