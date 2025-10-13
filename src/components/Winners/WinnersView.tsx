@@ -11,9 +11,10 @@ type WinnrsViewType = {
     randomRecord: WinnerType[]
     category: string
     setShowConfetti: Dispatch<SetStateAction<boolean>>
+    onClearHistory?: () => void
 }
 
-const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShowConfetti }) => {
+const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShowConfetti, onClearHistory }) => {
     const [downloaded, setDownloaded] = useState<boolean>(false);
     const [selectedDivision, setSelectedDivision] = useState<string>('all');
     
@@ -40,22 +41,22 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
     return (
         <Box className="relative h-full" p={6}>
             {/* Enhanced Header Section */}
-            <VStack spacing={4} my={8}>
+            <VStack spacing={2} my={4}>
                 <Box textAlign="center">
                     <Heading 
-                        size="2xl" 
+                        size="lg" 
                         bgGradient="linear(to-r, #FABA02, #FFD700)" 
                         bgClip="text"
-                        fontWeight="black"
+                        fontWeight="extrabold"
                         textTransform="uppercase"
-                        letterSpacing="wider"
-                        mb={2}
+                        letterSpacing="wide"
+                        mb={1}
                     >
                         🎉 {category} Winners 🎉
                     </Heading>
                     <Text 
                         color="whiteAlpha.900" 
-                        fontSize="xl" 
+                        fontSize="sm" 
                         fontWeight="semibold"
                         textShadow="2px 2px 4px rgba(0,0,0,0.3)"
                     >
@@ -64,10 +65,10 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                     <Badge 
                         colorScheme="yellow" 
                         variant="solid" 
-                        px={4} 
-                        py={2} 
+                        px={2} 
+                        py={0.5} 
                         borderRadius="full" 
-                        fontSize="md"
+                        fontSize="xs"
                         mt={2}
                     >
                         {filteredRecords.length} Winner{filteredRecords.length !== 1 ? 's' : ''}
@@ -79,8 +80,8 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
             <Box 
                 bg="whiteAlpha.100" 
                 borderRadius="xl" 
-                p={4} 
-                mb={6}
+                p={3} 
+                mb={4}
                 backdropFilter="blur(10px)"
                 border="1px solid"
                 borderColor="whiteAlpha.200"
@@ -88,14 +89,15 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                 <HStack justify="space-between" wrap="wrap" spacing={4}>
                     {/* Division Filter */}
                     <Box>
-                        <Text color="white" fontSize="sm" mb={2} fontWeight="medium">Filter by Division:</Text>
+                        <Text color="white" fontSize="xs" mb={1} fontWeight="medium">Filter by Division:</Text>
                         <Select
                             value={selectedDivision}
                             onChange={(e) => setSelectedDivision(e.target.value)}
                             bg="white"
                             borderRadius="lg"
-                            size="md"
-                            maxW="250px"
+                            size="sm"
+                            fontSize="xs"
+                            maxW="220px"
                             boxShadow="md"
                         >
                             <option value="all">All Divisions ({randomRecord.length})</option>
@@ -113,12 +115,24 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                     {/* Download Buttons */}
                     <HStack spacing={3}>
                         <Button 
-                            size="md" 
+                            size="xs"
+                            colorScheme="red"
+                            color="white"
+                            borderRadius="xl"
+                            px={3}
+                            fontWeight="semibold"
+                            _hover={{ filter: 'brightness(0.95)' }}
+                            onClick={onClearHistory}
+                        >
+                            🧹 Clear History
+                        </Button>
+                        <Button 
+                            size="xs" 
                             bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                             color="white"
                             borderRadius="xl"
-                            fontWeight="bold"
-                            px={6}
+                            fontWeight="semibold"
+                            px={3}
                             _hover={{
                                 transform: "translateY(-2px)",
                                 boxShadow: "0 10px 25px rgba(102, 126, 234, 0.3)"
@@ -137,12 +151,12 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                             📊 Download CSV
                         </Button>
                         <Button 
-                            size="md"
+                            size="xs"
                             bg="linear-gradient(135deg, #FABA02, #FFD700)"
                             color="white"
                             borderRadius="xl"
-                            fontWeight="bold"
-                            px={6}
+                            fontWeight="semibold"
+                            px={3}
                             _hover={{
                                 transform: "translateY(-2px)",
                                 boxShadow: "0 10px 25px rgba(250, 186, 2, 0.3)"
@@ -179,13 +193,13 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                 borderColor="gray.200"
             >
                 <TableContainer maxH="60vh" overflowY="auto">
-                    <Table variant="simple" size="md">
+                    <Table variant="simple" size="sm">
                         <Thead bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
                             <Tr>
                                 <Th 
                                     color="white" 
                                     fontWeight="bold" 
-                                    fontSize="sm"
+                                    fontSize="xs"
                                     textTransform="uppercase"
                                     letterSpacing="wider"
                                     sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -195,7 +209,7 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                 <Th 
                                     color="white" 
                                     fontWeight="bold" 
-                                    fontSize="sm"
+                                    fontSize="xs"
                                     textTransform="uppercase"
                                     letterSpacing="wider"
                                     sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -205,7 +219,7 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                 <Th 
                                     color="white" 
                                     fontWeight="bold" 
-                                    fontSize="sm"
+                                    fontSize="xs"
                                     textTransform="uppercase"
                                     letterSpacing="wider"
                                     sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -215,7 +229,7 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                 <Th 
                                     color="white" 
                                     fontWeight="bold" 
-                                    fontSize="sm"
+                                    fontSize="xs"
                                     textTransform="uppercase"
                                     letterSpacing="wider"
                                     sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -225,7 +239,7 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                 <Th 
                                     color="white" 
                                     fontWeight="bold" 
-                                    fontSize="sm"
+                                    fontSize="xs"
                                     textTransform="uppercase"
                                     letterSpacing="wider"
                                     sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -235,7 +249,7 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                 <Th 
                                     color="white" 
                                     fontWeight="bold" 
-                                    fontSize="sm"
+                                    fontSize="xs"
                                     textTransform="uppercase"
                                     letterSpacing="wider"
                                     sx={{ position: 'sticky', top: 0, zIndex: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
@@ -256,16 +270,16 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                     transition="all 0.2s"
                                     bg={index % 2 === 0 ? 'gray.50' : 'white'}
                                 >
-                                    <Td fontWeight="bold" color="blue.600">
+                                    <Td fontWeight="bold" color="blue.600" fontSize="xs" py={1}>
                                         {index + 1}
                                     </Td>
-                                    <Td fontWeight="semibold" color="gray.800" isTruncated title={record.name}>
+                                    <Td fontWeight="semibold" color="gray.800" isTruncated title={record.name} fontSize="xs" py={1}>
                                         {record.name}
                                     </Td>
-                                    <Td color="gray.600" fontFamily="mono">
+                                    <Td color="gray.600" fontFamily="mono" fontSize="xs" py={1}>
                                         {maskPhoneNumber(record.phoneNumber)}
                                     </Td>
-                                    <Td color="gray.700" isTruncated title={record.branchName}>
+                                    <Td color="gray.700" isTruncated title={record.branchName} fontSize="xs" py={1}>
                                         {record.branchName}
                                     </Td>
                                     <Td>
@@ -273,8 +287,9 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                             colorScheme="blue" 
                                             variant="subtle" 
                                             borderRadius="full"
-                                            px={3}
-                                            py={1}
+                                            px={2}
+                                            py={0.5}
+                                            fontSize="xs"
                                         >
                                             {record.division || 'N/A'}
                                         </Badge>
@@ -284,8 +299,9 @@ const WinnersView: React.FC<WinnrsViewType> = ({ randomRecord, category, setShow
                                             colorScheme="green" 
                                             variant="subtle" 
                                             borderRadius="full"
-                                            px={3}
-                                            py={1}
+                                            px={2}
+                                            py={0.5}
+                                            fontSize="xs"
                                         >
                                             {record.region || 'N/A'}
                                         </Badge>

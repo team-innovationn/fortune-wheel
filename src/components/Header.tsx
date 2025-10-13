@@ -4,9 +4,10 @@ import { Dispatch, SetStateAction } from "react"
 
 type HeaderProp = {
     setViewIndex: Dispatch<SetStateAction<number>>
+    onClearHistory?: () => void
 }
 
-const Header: React.FC<HeaderProp> = ({ setViewIndex }) => {
+const Header: React.FC<HeaderProp> = ({ setViewIndex, onClearHistory }) => {
 
     // Reload page
     function reloadPage() {
@@ -21,7 +22,7 @@ const Header: React.FC<HeaderProp> = ({ setViewIndex }) => {
                     {/* Ecobank Logo */}
                     <Image src="/images/super_rewards.svg" className="cursor-pointer" onClick={reloadPage} width={188} height={106} alt="logo" />
 
-                    <div className="hidden sm:block"></div>
+                   
                 </nav>
             </header>
         </>

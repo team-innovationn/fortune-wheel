@@ -1,10 +1,11 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
 
 const ConfettiEffect: React.FC = () => {
-    // Get the window size using the useWindowSize hook
-    const [width, setWidth] = useState(window.innerWidth);
-    const [height, setHeight] = useState(window.innerHeight);
+    // Track viewport to match full-screen without affecting layout
+    const [width, setWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 0);
+    const [height, setHeight] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 0);
 
     useEffect(() => {
         const handleResize = () => {
@@ -16,9 +17,14 @@ const ConfettiEffect: React.FC = () => {
     }, []);
 
     return (
-        <div>
-            <Confetti width={width} height={1000} />
-        </div>
+        <Confetti
+            width={width}
+            height={height}
+            style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}
+            numberOfPieces={220}
+            recycle={false}
+            gravity={0.3}
+        />
     );
 };
 
