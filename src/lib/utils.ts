@@ -164,9 +164,8 @@ export const selectWinnersByCategory = (
         switch (subCategory) {
             case 'Business Expansion (Finale)':
             case 'Millionaire Geng (Finale)':
-                return pickPerDivision(1);
             case 'Scholarship Grant (Finale)':
-                return pickBankWide(1);
+                return pickPerDivision(1);
             default:
                 return pickBankWide(1);
         }
